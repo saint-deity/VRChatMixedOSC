@@ -1,0 +1,9 @@
+python-osc
+pyyaml
+asyncio
+winsdk
+pyaudio
+https://github.com/cyberkitsune/speech_recognition/archive/refs/heads/vrcsubs-edits.zip
+googletrans==4.0.0rc1
+deepl
+vosk
