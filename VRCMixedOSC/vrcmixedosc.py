@@ -37,7 +37,9 @@ config_music = {
     'OnlyShowOnChange': True,
     'UseTextFile': False,
     'TextFileLocation': "",
-    'TextFileUpdateAlways': False, 
+    'TextFileUpdateAlways': False,
+    'AFK': False,
+    'AFKSince': 0,
 }
 
 config_subs = {
@@ -53,11 +55,6 @@ config_subs = {
     'Pause': False, 
     'TranslateInterumResults': True, 
     'OSCControlPort': 9001
-}
-
-config = {
-    'Music': config_music,
-    'Subtitles': config_subs
 }
 
 def load_config():
@@ -287,7 +284,7 @@ class OSCServer():
         self.dispatcher.set_default_handler(self._def_osc_dispatch)
         self.dispatcher.map("/avatar/parameters/vrcmosc-Enabled", self.enabled)
         self.dispatcher.map("/avatar/parameters/vrcmosc-Pause", self._osc_pause)
-        
+        self.dispatcher.map("/avatar/parameters/AFK", self.AFK)
 
         self.server = BlockingOSCUDPServer(("127.0.0.1", config_subs['OSCControlPort']), self.dispatcher)
         self.server_thread = threading.Thread(target=self._process_osc)
@@ -297,7 +294,8 @@ class OSCServer():
 
     def shutdown(self):
         self.server.shutdown()
-        self.server_thread.join() 
+        self.server_thread.join()
+    
 
     def enabled(self, address, *args):
         print("Enabled is now: ", args[0])
@@ -305,7 +303,12 @@ class OSCServer():
     
     def _osc_pause(self, address, *args):
         print("Pausing is now: ", args[0])
-        config_subs['Pause'] = args[0]  
+        config_subs['Pause'] = args[0]
+
+    def AFK(self, address, *args):
+        print("AFK Status: ", args[0])
+        config_music['AFK'] = args[0]
+        config_music['AFKSince'] = datetime.datetime.now()
 
     def _osc_updateconf(self, address, *args):
         key = address.split("vrcmosc-")[1]
@@ -318,7 +321,7 @@ class OSCServer():
             config_subs[key] = args[0]
     
     def _def_osc_dispatch(self, address, *args):
-        #print("Received unknown OSC message: ", address, args)
+        #print("Recei ed unknown OSC message: ", address, args)
         pass
     
     def _process_osc(self):
@@ -339,6 +342,11 @@ def music_thread():
     
     lastPaused = False
     while True:
+        if config_music['AFK'] == True:
+            client.send_message("/chatbox/input", [f"​\u2028╼ USER IS AFK FOR {time_string((datetime.datetime.now()-config_music['AFKSince']))} ╾\u2028╼ 🗡 Player Killers 🗡 ╾\u2028​", True, False])
+            time.sleep(1.5)
+            continue
+
         if not config_music['Enabled']:
             time.sleep(1.5)
             continue
@@ -382,35 +390,40 @@ def music_thread():
                     else:
                         project_path += ' ' + item
                 
-                activity = f"⚙️ In Unity Editor - {project_path}"
+                activity = f"⚙️ In Unity Editor ╾\u2028Project: {project_path}"
                 break
             else:
-                activity = "🥽 In PCVR"
+                activity = "🥽 In PCVR ╾"
             
 
 
-        current_song_string = f"╼ ▶️ {song_artist} - {song_title} 〣 {activity} 〣 {activity_end} ╾"
+        current_song_string = f"​\u2028╼ {song_artist} ╾\u2028 {song_title}\u2028╼ {activity}\u2028╼ 🗡 Player Killers 🗡 ╾\u2028​"
+        '''{activity}\u2028'''
+        ''' {activity_end} ╾'''
         
         if len(current_song_string) >= 144 :
             current_song_string = current_song_string[:144] + "..."
         if info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PLAYING:
-            send_to_vrc = not config_music['OnlyShowOnChange']
-            if last_displayed_song != (song_artist, song_title):
-                send_to_vrc = True
-                last_displayed_song = (song_artist, song_title)
-                print(f"New song detected: {song_artist} - {song_title}")
+            '''send_to_vrc = not config_music['OnlyShowOnChange']'''
+            '''if last_displayed_song != (song_artist, song_title):'''
+            send_to_vrc = True
+            last_displayed_song = (song_artist, song_title)
+            print(f"New song detected: {song_artist} - {song_title}")
+
             if send_to_vrc:
                 client.send_message("/chatbox/input", [current_song_string, True, False])
             lastPaused = False
         elif info['status'] == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PAUSED:
-            if lastPaused:
+            '''if lastPaused:
                 time.sleep(1.5)
-                continue
+                continue'''
             
-            client.send_message("/chatbox/input", [f"╼ {config_music['PausedFormat']} 〣 {activity} 〣 {activity_end} ╾", True, False])
+            client.send_message("/chatbox/input", [f"​\u2028╼ {config_music['PausedFormat']} ╾​\u2028╼ {activity} ╾\u2028╼ 🗡 Player Killers 🗡 ╾\u2028​", True, False])
             last_displayed_song = ("", "")
             lastPaused = True
         time.sleep(1.5)
+        continue
+
 
 '''
 Main
@@ -441,8 +454,6 @@ def main():
             for key in config_subs:
                 ymlfile.write(f"  {key}: {config_subs[key]}\n")
 
-
-        
         print("Config file created, please edit it and restart the program.")
         sys.exit(0)
         
@@ -451,11 +462,11 @@ def main():
     msc = threading.Thread(target=music_thread)
     msc.start()
 
-    pst = threading.Thread(target=process_audio)
+    '''pst = threading.Thread(target=process_audio)
     pst.start()
 
     cat = threading.Thread(target=audio_thread)
-    cat.start()
+    cat.start()'''
     
     osc = None
     launchOSC = False
@@ -473,8 +484,8 @@ def main():
 
     # join threads
     msc.join()
-    pst.join()
-    cat.join()
+    '''pst.join()
+    cat.join()'''
 
     if config_subs['AllowOSCControl']:
         subtitles_thread.join()
