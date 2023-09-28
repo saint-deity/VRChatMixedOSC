@@ -7,7 +7,7 @@ Heads up! I provided a VRChat Sub Menu & Parameters for you to attach the contro
 <br>
 <br>
 <br>
-There are some personal things in here, such as a little token to my boyfriend ("My Eggy"), if you don't wanna see this, feel free to change it to your own comment. As well as a Unity Project Status. If you know what you're doing, you can change this as you wish to something else you want people to know about. Additionally, I have removed **ALL** translation components, as at the time of making this, I had zero personal use for this. I might add it back in later (it'd be some basic ass copy and paste since the OG worked great).
+There are some personal things in here, such as a little token to my VRChat group 'Player Killers' (not a gang monkey group), keep it, or edit it from the config.yml under the 'SubText' key. As well as a Unity Project Status, make sure to open your project via vrchat creator companion, otherwise it will show an error (but I made even that look pretty!). If you know what you're doing, you can change this as you wish to something else you want people to know about. Additionally, I have removed **ALL** translation components, as at the time of making this, I had zero personal use for this. I might add it back in later (it'd be some basic ass copy and paste since the OG worked great), note that all Speech to Text OSC has been disabled in this version due to network traffic clogging causing extreme ping issues (someone hit 2.5 million ping because of it).
 <br>
 <br>
 Need some help? DM me on Discord [**HERE!**](https://discordapp.com/users/748164832028655717)
