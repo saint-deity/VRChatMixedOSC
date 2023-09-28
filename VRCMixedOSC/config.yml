@@ -1,0 +1,24 @@
+Music:
+  DisplayFormat: '( NP: {song_artist} - {song_title}{song_position} )'
+  Enabled: true
+  OnlyShowOnChange: false
+  PausedFormat: Playback Paused
+  TextFileLocation: ''
+  TextFileUpdateAlways: false
+  UseTextFile: false
+Subtitles:
+  AllowOSCControl: true
+  CapturedLanguage: en-US
+  EnableTranslation: false
+  FollowMicMute: true
+  OSCControlPort: 9001
+  Pause: false
+  TranscriptionMethod: Google
+  TranscriptionRateLimit: 1200
+  TranslateInterumResults: true
+  TranslateMethod: Google
+  TranslateTo: en-US
+  TranslateToken: ''
+Activity:
+  SubText: Player Killers
+  ActivityIdle: ''
