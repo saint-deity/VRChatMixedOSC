@@ -29,11 +29,13 @@ from winsdk.windows.media.control import \
     GlobalSystemMediaTransportControlsSessionManager as MediaManager
 from winsdk.windows.media.control import \
     GlobalSystemMediaTransportControlsSessionPlaybackStatus
+from winsdk.windows.media.core import \
+    AudioStreamDescriptor
 
 config_music = {
     'Enabled': True,
     'DisplayFormat': "( NP: {song_artist} - {song_title}{song_position} )",
-    'PausedFormat': "( Playback Paused )",
+    'PausedFormat': "Playback Paused",
     'OnlyShowOnChange': True,
     'UseTextFile': False,
     'TextFileLocation': "",
@@ -50,11 +52,15 @@ config_subs = {
     'EnableTranslation': False, 
     'TranslateMethod': "Google", 
     'TranslateToken': "", 
-    "TranslateTo": "en-US", 
+    'TranslateTo': "en-US", 
     'AllowOSCControl': True, 
     'Pause': False, 
     'TranslateInterumResults': True, 
     'OSCControlPort': 9001
+}
+
+config_activity = {
+    'SubText': "",
 }
 
 def load_config():
@@ -342,10 +348,9 @@ def music_thread():
     
     lastPaused = False
     while True:
+        AFK_message = ""
         if config_music['AFK'] == True:
-            client.send_message("/chatbox/input", [f"​\u2028╼ USER IS AFK FOR {time_string((datetime.datetime.now()-config_music['AFKSince']))} ╾\u2028╼ 🗡 Player Killers 🗡 ╾\u2028​", True, False])
-            time.sleep(1.5)
-            continue
+            AFK_message = f"AFK [ {time_string((datetime.datetime.now()-config_music['AFKSince']))} ] \u2028\u2028"
 
         if not config_music['Enabled']:
             time.sleep(1.5)
@@ -368,7 +373,6 @@ def music_thread():
 
         song_artist, song_title = (info['artist'], info['title'])
         activity = ""
-        activity_end = "My Eggy"
 
         cmd = 'WMIC PROCESS get Caption,Commandline,Processid'
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -382,24 +386,27 @@ def music_thread():
                 
                 process_name = line[0]
 
-                project_path = line[line.index('-projectPath') + 1]
-                project_path = project_path.split('\\')[-1]
-                for item in line[line.index('-projectPath') + 2:]:
-                    if '"' in item:
-                        project_path += ' ' + item.strip('"')
-                    else:
-                        project_path += ' ' + item
-                
-                activity = f"⚙️ In Unity Editor ╾\u2028Project: {project_path}"
-                break
+                if '-projectPath' in line:
+                    project_path = line[line.index('-projectPath') + 1]
+                    project_path = project_path.split('\\')[-1]
+                    for item in line[line.index('-projectPath') + 2:]:
+                        if '"' in item:
+                            project_path += ' ' + item.strip('"')
+                            project_path += ' ' + item.strip('""')
+                        else:
+                            project_path += ' ' + item
+                    
+                    activity = f"░▒▓ In Unity ▓▒░\u2028{project_path}\u2028\u2028"
+                    break
+                else:
+                    activity = f"░▒▓ In Unity ▓▒░\u2028⚠winsdk_subprocess⚠\u2028-projectPath error\u2028\u2028"
+                    break
             else:
-                activity = "🥽 In PCVR ╾"
-            
+                activity = config['Activity']['ActivityIdle']
+            '''🥽 In PCVR'''
 
 
-        current_song_string = f"​\u2028╼ {song_artist} ╾\u2028 {song_title}\u2028╼ {activity}\u2028╼ 🗡 Player Killers 🗡 ╾\u2028​"
-        '''{activity}\u2028'''
-        ''' {activity_end} ╾'''
+        current_song_string = f"\u2028{AFK_message}{activity}░▒▓ Blasting Music ▓▒░\u2028{song_artist}\u2028{song_title}\u2028░▒▓ {config['Activity']['SubText']} ▓▒░\u2028​"
         
         if len(current_song_string) >= 144 :
             current_song_string = current_song_string[:144] + "..."
@@ -418,7 +425,7 @@ def music_thread():
                 time.sleep(1.5)
                 continue'''
             
-            client.send_message("/chatbox/input", [f"​\u2028╼ {config_music['PausedFormat']} ╾​\u2028╼ {activity} ╾\u2028╼ 🗡 Player Killers 🗡 ╾\u2028​", True, False])
+            client.send_message("/chatbox/input", [f"\u2028{AFK_message}{activity}░▒▓ Fuckin NOVA! ▓▒░\u2028 ⏸ {config_music['PausedFormat']}\u2028░▒▓ {config['Activity']['SubText']} ▓▒░\u2028​", True, False])
             last_displayed_song = ("", "")
             lastPaused = True
         time.sleep(1.5)
@@ -453,6 +460,8 @@ def main():
             ymlfile.write(f"Subtitles:\n")
             for key in config_subs:
                 ymlfile.write(f"  {key}: {config_subs[key]}\n")
+            for key in config_activity:
+                ymlfile.write(f"  {key}: {config_activity[key]}\n")
 
         print("Config file created, please edit it and restart the program.")
         sys.exit(0)
@@ -487,8 +496,8 @@ def main():
     '''pst.join()
     cat.join()'''
 
-    if config_subs['AllowOSCControl']:
-        subtitles_thread.join()
+    '''if config_subs['AllowOSCControl']:
+        subtitles_thread.join()'''
 
     if osc is not None:
         osc.shutdown()
