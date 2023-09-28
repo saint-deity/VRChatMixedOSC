@@ -14,4 +14,4 @@ Need some help? DM me on Discord [**HERE!**](https://discordapp.com/users/748164
 <br>
 <br>
 ## __Sample Screenshot__:
-![VRChat_2023-07-05_02-55-47 345_1440x2560](https://github.com/saint-deity/VRChatMixedOSC/assets/59446525/ea45fcd8-d74d-4639-87a9-0e5522b83dfe)
+![VRChat_2023-07-05_02-55-47 345_1440x2560](https://cdn.discordapp.com/attachments/999011782469365900/1156277449873686569/VRChat_2023-09-27_03-07-35.920_720x1280.png?ex=6515b44a&is=651462ca&hm=92c799733bb71898bc5b038a8b8a29582f866302d0c16dd3576df7fcf518fe15&)
