@@ -378,32 +378,55 @@ def music_thread():
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         for line in proc.stdout:
             line = line.decode('utf-8').strip('\r\n')
-
             if 'Unity.exe' in line:
                 line = line.split(' ')
                 line = list(filter(None, line))
                 line.pop()
                 
                 process_name = line[0]
-
                 if '-projectPath' in line:
                     project_path = line[line.index('-projectPath') + 1]
                     project_path = project_path.split('\\')[-1]
+                    print (f"projectpath: {line}")
                     for item in line[line.index('-projectPath') + 2:]:
                         if '"' in item:
-                            project_path += ' ' + item.strip('"')
-                            project_path += ' ' + item.strip('""')
-                        else:
-                            project_path += ' ' + item
+                            item = item.replace('"', ' ')
+                            item = item.split(' ')
+                            item = list(filter(None, item))
+
+                            item = item.replace("'", ' ')
+                            item = item.split(' ')
+                            item = list(filter(None, item))
+                            del item[1]
+                            item.pop()
+                            item.replace('"', '')
+                            item.replace("'", "")
+                            project_path = (item.replace('"', ''))
                     
-                    activity = f"░▒▓ In Unity ▓▒░\u2028{project_path}\u2028\u2028"
+                    activity = f"░▒▓ In Unity ▓▒░\u2028" + (project_path.replace('"', '')) + "\u2028\u2028"
                     break
                 else:
                     activity = f"░▒▓ In Unity ▓▒░\u2028⚠winsdk_subprocess⚠\u2028-projectPath error\u2028\u2028"
-                    break
+                    continue
+            elif 'Code.exe' in line:
+                print(line)
+                line = line.split (' ')
+                line = list(filter(None, line))
+                line.pop()
+
+                process_name = "Visual Studio Code"
+                line[3] = line[3].replace('"', '')
+                actualindex = line[3].rfind('\\')
+
+                project_path = line[3][:actualindex]
+                if project_path == "Code":
+                    project_path = 'editing a file'
+
+                activity = f"░▒▓ VS CODE ▓▒░\u2028{project_path}\u2028\u2028"
+                break
             else:
                 activity = config['Activity']['ActivityIdle']
-            '''🥽 In PCVR'''
+                '''🥽 In PCVR'''
 
 
         current_song_string = f"\u2028{AFK_message}{activity}░▒▓ Blasting Music ▓▒░\u2028{song_artist}\u2028{song_title}\u2028░▒▓ {config['Activity']['SubText']} ▓▒░\u2028​"
